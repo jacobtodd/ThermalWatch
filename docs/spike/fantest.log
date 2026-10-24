@@ -1,0 +1,18 @@
+uid: 0 before: 2316.0 2501.0 target: 5478.0
+set F0md=1: kr=0x0 result=0 F1md=1: kr=0x0 result=0
+set F0Tg: kr=0x0 result=0 F1Tg: kr=0x0 result=0
+t+1s rpm: 5285.0 5298.0 md: [1]
+t+2s rpm: 5425.0 5430.0 md: [1]
+t+3s rpm: 5450.0 5458.0 md: [1]
+t+4s rpm: 5472.0 5477.0 md: [1]
+t+5s rpm: 5473.0 5494.0 md: [1]
+t+6s rpm: 5478.0 5483.0 md: [1]
+t+7s rpm: 5481.0 5481.0 md: [1]
+t+8s rpm: 5487.0 5476.0 md: [1]
+restore F0md: kr=0x0 result=0 F1md: kr=0x0 result=0
+after +1s rpm: 2337.0 2527.0
+after +2s rpm: 2302.0 2493.0
+after +3s rpm: 2316.0 2499.0
+after +4s rpm: 2319.0 2500.0
+after +5s rpm: 2315.0 2501.0
+after +6s rpm: 2316.0 2503.0

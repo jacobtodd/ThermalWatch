@@ -1,0 +1,81 @@
+<style>
+  .pop { width: 340px; margin: 0 auto; background: #1e1e22; color: #eee; border-radius: 14px; padding: 16px; font: 13px -apple-system, system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .row { display:flex; align-items:center; justify-content:space-between; }
+  .muted { color:#8a8a92; font-size: 11px; }
+  h4.sec { margin: 14px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color:#8a8a92; }
+  .chipname { text-align:center; font-size: 15px; font-weight: 600; letter-spacing:.02em; }
+  .chipsub { text-align:center; color:#8a8a92; font-size: 11px; margin-bottom: 8px; }
+  .trio { display:flex; justify-content:space-between; align-items:flex-start; }
+  .trio > div { text-align:center; width: 33%; }
+  .gauge { width: 96px; height: 96px; }
+  .arc { stroke-dasharray: 251; stroke-dashoffset: 251; }
+  .arc.t { animation: fillT 1.8s ease-out forwards, breatheT 3s 1.8s ease-in-out infinite; }
+  .arc.l { animation: fillL 1.8s ease-out forwards, breatheL 1.7s 1.8s ease-in-out infinite; }
+  @keyframes fillT { to { stroke-dashoffset: 105; } }
+  @keyframes breatheT { 50% { stroke-dashoffset: 112; } }
+  @keyframes fillL { to { stroke-dashoffset: 168; } }
+  @keyframes breatheL { 25% { stroke-dashoffset: 150; } 60% { stroke-dashoffset: 180; } }
+  .fan { width: 70px; height: 70px; margin: 13px 0; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .graph { height: 90px; background:#141417; border-radius: 8px; overflow:hidden; position:relative; }
+  .graph svg { position:absolute; left:0; top:0; width: 200%; height: 100%; animation: scroll 8s linear infinite; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  .legend { display:flex; gap:12px; font-size:11px; margin-top:4px; }
+  .proc { display:flex; justify-content:space-between; padding: 4px 0; border-bottom: 1px solid #2a2a30; font-size: 12px; }
+  .hot { color:#ff8a4c; }
+  .warn { background:#3a2a1a; color:#ffb67a; border-radius:8px; padding:8px; font-size:12px; margin-top:8px; }
+  .menubar { width: 340px; margin: 0 auto 10px; background:#2b2b30; color:#ddd; border-radius:6px; padding:4px 10px; font: 12px -apple-system, system-ui; text-align:right; }
+  .note { max-width: 520px; margin: 18px auto 0; font-size: 13px; }
+</style>
+
+<h2>Combined: A + C's graph</h2>
+<p class="subtitle">Chip name on top. Temperature, overall CPU load, and the spinning fan side by side. Live graph underneath. Numbers are placeholders.</p>
+
+<div style="padding:20px; background:#0e0e10; border-radius:12px">
+  <div class="menubar">🌀 58° · 33% ▾</div>
+  <div class="pop">
+    <div class="chipname">Apple M5 Pro</div>
+    <div class="chipsub">MacBook Pro · on power adapter</div>
+
+    <div class="trio">
+      <div>
+        <svg class="gauge" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" stroke="#2a2a30" stroke-width="9" fill="none"/>
+          <circle class="arc t" cx="50" cy="50" r="40" stroke="#ff8a4c" stroke-width="9" fill="none" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <text x="50" y="56" text-anchor="middle" fill="#eee" font-size="20">58°</text>
+        </svg>
+        <div class="muted">CPU temp</div>
+      </div>
+      <div>
+        <svg class="gauge" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" stroke="#2a2a30" stroke-width="9" fill="none"/>
+          <circle class="arc l" cx="50" cy="50" r="40" stroke="#9be07a" stroke-width="9" fill="none" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <text x="50" y="56" text-anchor="middle" fill="#eee" font-size="20">33%</text>
+        </svg>
+        <div class="muted">CPU load</div>
+      </div>
+      <div>
+        <svg class="fan" viewBox="0 0 100 100"><g fill="#7fc4ff"><circle cx="50" cy="50" r="8"/><path d="M50 42 C40 10, 70 10, 58 44Z"/><path d="M58 50 C90 40, 90 70, 56 58Z"/><path d="M50 58 C60 90, 30 90, 42 56Z"/><path d="M42 50 C10 60, 10 30, 44 42Z"/></g></svg>
+        <div class="muted">Fan 2,140 rpm</div>
+      </div>
+    </div>
+
+    <h4 class="sec">Last 10 minutes</h4>
+    <div class="graph">
+      <svg viewBox="0 0 400 90" preserveAspectRatio="none">
+        <path d="M0 60 L20 55 L40 57 L60 45 L80 40 L100 50 L120 35 L140 32 L160 46 L180 55 L200 60 L220 55 L240 57 L260 45 L280 40 L300 50 L320 35 L340 32 L360 46 L380 55 L400 60" stroke="#ff8a4c" stroke-width="2" fill="none"/>
+        <path d="M0 70 L20 50 L40 72 L60 30 L80 25 L100 65 L120 20 L140 40 L160 60 L180 75 L200 70 L220 50 L240 72 L260 30 L280 25 L300 65 L320 20 L340 40 L360 60 L380 75 L400 70" stroke="#9be07a" stroke-width="1.5" fill="none" opacity=".85"/>
+        <path d="M0 78 L40 77 L80 70 L120 62 L160 66 L200 78 L240 77 L280 70 L320 62 L360 66 L400 78" stroke="#7fc4ff" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+      </svg>
+    </div>
+    <div class="legend"><span style="color:#ff8a4c">— temp</span><span style="color:#9be07a">— load</span><span style="color:#7fc4ff">- - fan</span></div>
+
+    <h4 class="sec">Using your chip</h4>
+    <div class="proc"><b>Photos analysis</b><span class="hot">107%</span></div>
+    <div class="proc"><b>Logic Pro</b><span class="hot">47%</span></div>
+    <div class="proc"><b>Logitech G Hub</b><span>21%</span></div>
+    <div class="warn">Logic has been busy for 2h while you weren't using it.</div>
+  </div>
+</div>
+
+<p class="note muted">Note: per-app numbers like "107%" mean more than one core; overall load is out of the whole chip (100% = every core flat out).</p>
