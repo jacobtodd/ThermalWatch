@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Observation
 
 /// Does all the hardware reading off the main thread. Owns the SMC connection.
@@ -50,8 +50,8 @@ final class SystemMonitor {
     private(set) var topProcesses: [ProcessUsage] = []
     /// Every process from the latest process sample, for warnings.
     private(set) var allProcesses: [ProcessUsage] = []
-    /// Called after each process sample (warnings hook in here).
-    @ObservationIgnored var onProcesses: (([ProcessUsage]) -> Void)?
+    private(set) var warnings: [BusyWarning] = []
+    @ObservationIgnored private var warningTracker = WarningTracker()
     /// Called after each snapshot (auto-boost hooks in here).
     @ObservationIgnored var onSnapshot: ((Snapshot) -> Void)?
 
@@ -92,7 +92,35 @@ final class SystemMonitor {
             lastProcessSample = snap.date
             allProcesses = usage
             topProcesses = Array(usage.prefix(5))
-            onProcesses?(usage)
+            let workspace = NSWorkspace.shared
+            warnings = warningTracker.update(
+                usage: usage,
+                frontmostPID: workspace.frontmostApplication?.processIdentifier,
+                guiPIDs: Set(workspace.runningApplications.filter { $0.activationPolicy == .regular }.map(\.processIdentifier)),
+                now: snap.date)
         }
+    }
+
+    /// Mutes an app's warnings until ThermalWatch is relaunched.
+    func ignore(_ warning: BusyWarning) {
+        warningTracker.ignored.insert(warning.name)
+        warnings.removeAll { $0.name == warning.name }
+    }
+
+    /// Politely asks a regular app to quit (it can still prompt to save).
+    func quit(_ warning: BusyWarning) {
+        guard warning.isGUIApp else { return }
+        NSRunningApplication(processIdentifier: warning.pid)?.terminate()
+        warnings.removeAll { $0.pid == warning.pid }
+    }
+
+    /// App icon for a process, if it's a regular app.
+    func icon(for pid: pid_t) -> NSImage? {
+        NSRunningApplication(processIdentifier: pid)?.icon
+    }
+
+    /// The friendly app name ("Logic Pro") when there is one, else the process name.
+    func displayName(pid: pid_t, fallback: String) -> String {
+        NSRunningApplication(processIdentifier: pid)?.localizedName ?? fallback
     }
 }

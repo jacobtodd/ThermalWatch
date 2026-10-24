@@ -15,10 +15,7 @@ struct ThermalWatchApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            Text("ThermalWatch")
-                .padding()
-                .onAppear { monitor.popoverOpen = true }
-                .onDisappear { monitor.popoverOpen = false }
+            PopoverView(monitor: monitor)
         } label: {
             Text(Formatting.menuBarTitle(temperature: monitor.latest?.temperature?.average,
                                          load: monitor.latest?.load,
