@@ -41,7 +41,7 @@ enum ProcessSampler {
             proc_name(pid, &nameBuf, UInt32(nameBuf.count))
             let machTime = task.pti_total_user + task.pti_total_system
             return ProcessSample(pid: pid,
-                                 name: String(cString: nameBuf),
+                                 name: String(decoding: nameBuf.prefix { $0 != 0 }.map(UInt8.init(bitPattern:)), as: UTF8.self),
                                  startTime: bsd.pbi_start_tvsec,
                                  cpuTimeNs: machTime * UInt64(timebase.numer) / UInt64(timebase.denom))
         }
