@@ -106,6 +106,10 @@ Other Apple Silicon Macs may use different keys. `Tools/calibrate-sensors.sh` fi
 
 **Pending:** end-to-end checks of fan boost on the real Mac (manual boost, kill/sleep/quit safety, auto-boost). The fan-safety rules are unit-tested, and fan writes were proven on the M5 Pro during the feasibility spike.
 
+## Licence
+
+MIT. See [LICENSE](LICENSE).
+
 ## Disclaimer
 
 This app writes to your Mac's System Management Controller. It's designed to only ever *add* cooling and to hand control back to macOS whenever anything goes wrong, but use it at your own risk.
