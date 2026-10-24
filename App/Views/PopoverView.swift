@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PopoverView: View {
     let monitor: SystemMonitor
+    let fans: FanHelperClient
     @AppStorage("useFahrenheit") private var useFahrenheit = false
     @State private var visible = false
     @State private var lastSize = CGSize(width: 340, height: 560)
@@ -42,7 +43,7 @@ struct PopoverView: View {
                 FanView(fans: snap?.fans ?? [])
             }
 
-            BoostSlot()
+            BoostControl(client: fans)
 
             section("Last 10 minutes")
             HistoryChart(history: monitor.history.items)
@@ -54,7 +55,8 @@ struct PopoverView: View {
 
             Divider()
             HStack {
-                SettingsSlot()
+                SettingsLink { Text("Settings…") }
+                    .simultaneousGesture(TapGesture().onEnded { NSApp.activate() })
                 Spacer()
                 Button("Quit ThermalWatch") { NSApplication.shared.terminate(nil) }
             }
@@ -69,7 +71,3 @@ struct PopoverView: View {
         Text(title.uppercased()).font(.caption2.weight(.semibold)).foregroundStyle(.secondary).tracking(0.6)
     }
 }
-
-/// Placeholders filled in by the fan-boost and settings work (Task 7).
-private struct BoostSlot: View { var body: some View { EmptyView() } }
-private struct SettingsSlot: View { var body: some View { EmptyView() } }
