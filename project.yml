@@ -1,0 +1,89 @@
+name: ThermalWatch
+options:
+  bundleIdPrefix: com.jacobtodd
+  deploymentTarget:
+    macOS: "27.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: URYTQJBX8K
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+
+targets:
+  ThermalWatch:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes: ["Info.plist"]
+      - path: Shared
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: ThermalWatch
+        LSUIElement: true # menu bar only, no Dock icon
+        LSApplicationCategoryType: public.app-category.utilities
+        NSHumanReadableCopyright: "© 2026"
+    entitlements:
+      path: App/ThermalWatch.entitlements
+      properties: {} # deliberately NOT sandboxed: SMC and process access need it
+    dependencies:
+      - target: ThermalWatchHelper
+        embed: false
+    postBuildScripts:
+      - name: Embed helper and its launchd plist
+        basedOnDependencyAnalysis: false
+        script: |
+          set -e
+          APP="$TARGET_BUILD_DIR/$WRAPPER_NAME"
+          mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Library/LaunchDaemons"
+          cp -f "$BUILT_PRODUCTS_DIR/ThermalWatchHelper" "$APP/Contents/MacOS/ThermalWatchHelper"
+          cp -f "$SRCROOT/Helper/com.jacobtodd.thermalwatch.helper.plist" "$APP/Contents/Library/LaunchDaemons/"
+          if [ "$CODE_SIGNING_ALLOWED" != "NO" ] && [ -n "$EXPANDED_CODE_SIGN_IDENTITY" ]; then
+            codesign --force --options runtime --timestamp=none -i com.jacobtodd.thermalwatch.helper \
+              --sign "$EXPANDED_CODE_SIGN_IDENTITY" "$APP/Contents/MacOS/ThermalWatchHelper"
+          fi
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobtodd.thermalwatch
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+  ThermalWatchHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Helper
+        excludes: ["*.plist"]
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_NAME: ThermalWatchHelper
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobtodd.thermalwatch.helper
+        SKIP_INSTALL: YES
+
+  ThermalWatchTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: ThermalWatch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobtodd.thermalwatch.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  ThermalWatch:
+    build:
+      targets:
+        ThermalWatch: all
+        ThermalWatchTests: [test]
+    test:
+      targets:
+        - ThermalWatchTests
