@@ -1,6 +1,6 @@
 # ThermalWatch: design
 
-*2026-10-25. "ThermalWatch" is a placeholder name.*
+*2026-10-25. "ThermalWatch" is a placeholder name. Status: built (plan Tasks 1–7); the end-to-end fan checks (Task 8) are pending.*
 
 ## Why
 
@@ -60,7 +60,7 @@ All of these were tested on Jacob's Mac on 2026-10-25. The spike code is in `doc
 **Temperatures**
 - About 256 `T*` keys of type `flt` read sensible values (10–120°C).
 - Families seen: `Tp**` (about 25 keys, around 59–61°C at moderate load), `Ts**`, `Tm**`, `Tg**`, `Te`/`TP`/`TR`/`TU` dies, and `TB*T` battery.
-- **Which keys are CPU cores on M5 hasn't been confirmed.** My expectation, unverified: `Tp**` are performance cores.
+- **CPU core sensors (confirmed during the build):** the `Tp` and `Tm` families, the M5 Pro's two CPU core clusters. Under an 18-core load for 30 s, `Tm` rose 11–16°C and `Tp` 10–13°C. `Tg` (GPU) rose a uniform 7–8°C by conduction, and the battery and board sensors stayed flat. You can re-run this with `Tools/calibrate-sensors.sh`.
 
 **CPU load and processes**
 - `host_processor_info(PROCESSOR_CPU_LOAD_INFO)` works and reports 18 cores.
@@ -146,3 +146,27 @@ All of these were tested on Jacob's Mac on 2026-10-25. The spike code is in `doc
 - Animation implementation details (SwiftUI `TimelineView`, Core Animation, etc.) inside the popover, as long as the anti-goals above hold.
 - How to name the chip and model. `machdep.cpu.brand_string` gives "Apple M5 Pro"; the friendly model name is up to you.
 - Test scope: personal app, so keep it lean. Unit-test the pure logic (CPU % maths, warning rules, auto-boost hysteresis, boost-only clamping) and skip UI tests.
+
+## Changes made during the build
+
+These are decisions the plan didn't fully settle, or where the real hardware disagreed with it.
+
+**Readings and process tracking**
+- **CPU temperature** averages the `Tp` and `Tm` sensors, which are both CPU clusters (the plan expected one family).
+- **Popover open/closed** is detected from the window's on-screen (occlusion) state. For menu bar windows, SwiftUI's `onAppear`/`onDisappear` turned out to be unreliable: it reported the hidden popover as "open", which kept the 2 s refresh running.
+- **The hidden popover reads nothing** from the monitor and shows a same-size blank, because the hidden window was re-rendering and animating on every update.
+  - Measured CPU with the popover closed, from CPU-time deltas over 60 s:
+    - never opened: 0.18%
+    - after opening and closing, before the fix: 7–13%
+    - after the fix: 0.18%
+- **Background warnings** only start tracking a process once it reaches 25% CPU. That keeps memory flat across about 800 processes.
+- **Fan animation** turns once every `min(3 s, 0.4 s × max ÷ rpm)` seconds, which is 1.35 s per turn at idle (2,317 rpm).
+
+**Fan boost**
+- **Takeover speed:** if you switch from one boost level to another while boosted, the helper keeps the RPM it recorded when it first took control. A change from Max to Medium can't lock the floor at Max speed.
+- **A helper restarted by macOS** hands the fans back to Auto, and the app mirrors that by showing Auto.
+- **"Enable fan control"** is offered when macOS reports the helper as "not found". That's how a never-registered daemon shows up when the app is in `/Applications`.
+
+**Launch at login**
+- The app registers itself only when running from `/Applications`, so test and dev builds never become login items.
+

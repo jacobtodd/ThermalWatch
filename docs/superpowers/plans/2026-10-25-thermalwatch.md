@@ -1,5 +1,7 @@
 # ThermalWatch Implementation Plan
 
+> **Status (2026-10-25):** Tasks 1–7 built and committed. Task 8 (end-to-end fan checks on the real Mac) is pending the user's Login Items approval of the helper. Deviations made during the build are listed in the design doc under "Changes made during the build".
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A personal macOS menu bar app for an M5 Pro MacBook Pro. It shows CPU temperature, load and fan speed live, names the processes heating the Mac, and can boost the fans safely through a root helper.
@@ -104,7 +106,7 @@ Code both the app and the helper need lives in `Shared/` and is compiled into bo
   - `static let fanCount = "FNum"`
   - `SMC` is not `Sendable`. Each owner holds its own instance.
 
-- [ ] **Step 1: Write `project.yml` and `Makefile`.** Copy the DiscPop shape (`/Users/jacobtodd/Projects/DiscPop/project.yml` and `Makefile`), with these differences:
+- [ ] **Step 1: Write `project.yml` and `Makefile`.** Copy the DiscPop shape (a sibling XcodeGen menu bar app's `project.yml` and `Makefile`), with these differences:
   - **Targets:**
     - `ThermalWatch` (application), sources `App` + `Shared`
     - `ThermalWatchHelper` (tool), sources `Helper` + `Shared`
@@ -383,7 +385,7 @@ struct FanViewTests {
   6. A footer with a Settings… button (the target comes in Task 7) and Quit ThermalWatch
   The popover is about 340 pt wide. `onAppear` and `onDisappear` set `monitor.popoverOpen`.
 - [ ] **Step 5: Run `make test`.** Expected: PASS.
-- [ ] **Step 6: Run `make install run`, open the popover and take a screenshot.** Run `screencapture -x /private/tmp/claude-501/-Users-jacobtodd-Projects/b976fb77-787d-4d20-9319-281f01533c9e/scratchpad/popover.png`, then look at it.
+- [ ] **Step 6: Run `make install run`, open the popover and take a screenshot.** Run `screencapture -x popover.png` (into a scratch folder), then look at it.
   - Expected: every section is present, the fan spins and the gauges are filled.
   - Start `yes > /dev/null` × 6 in the background. Within 5 s that process shows in "Using your chip". Kill them afterwards.
   - Re-run Task 4 Step 6 (closed-popover CPU < 1%).
